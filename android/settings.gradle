@@ -1,5 +1,17 @@
+// ১. মূল অ্যাপ মডিউল অন্তর্ভুক্ত করা
 include ':app'
-include ':capacitor-cordova-android-plugins'
-project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
 
-apply from: 'capacitor.settings.gradle'
+// ২. ক্যাপাসিটর প্লাগইনগুলোর জন্য শক্তিশালী কন্ডিশনাল কোড
+// এটি চেক করবে প্লাগইন ফোল্ডারটি আছে কি না, না থাকলে এরর দেবে না
+def pluginDir = new File('./capacitor-cordova-android-plugins/')
+if (pluginDir.exists()) {
+    include ':capacitor-cordova-android-plugins'
+    project(':capacitor-cordova-android-plugins').projectDir = pluginDir
+}
+
+// ৩. অটোমেটেড সেটিংস ফাইল লোড করা
+if (new File('capacitor.settings.gradle').exists()) {
+    apply from: 'capacitor.settings.gradle'
+}
+
+rootProject.name = "Porshi"
