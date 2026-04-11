@@ -57,6 +57,13 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Porshi P2P Chat Theme */
+    --porshi-neon: 120 100% 50%;
+    --porshi-dark: 210 40% 10%;
+    --porshi-dark-light: 210 35% 16%;
+    --porshi-sent-bubble: 120 100% 40%;
+    --porshi-received-bubble: 210 20% 30%;
   }
 
   .dark {
@@ -95,6 +102,13 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Porshi P2P Chat Theme */
+    --porshi-neon: 120 100% 50%;
+    --porshi-dark: 210 40% 10%;
+    --porshi-dark-light: 210 35% 16%;
+    --porshi-sent-bubble: 120 100% 40%;
+    --porshi-received-bubble: 210 20% 30%;
   }
 }
 
