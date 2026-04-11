@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "com.porshi.app"
-    // সরাসরি সংখ্যা ব্যবহার করা হয়েছে যাতে variables.gradle এর ঝামেলা না থাকে
     compileSdk 34
 
     defaultConfig {
@@ -12,10 +11,6 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        
-        aaptOptions {
-            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
-        }
     }
 
     buildTypes {
@@ -25,7 +20,6 @@ android {
         }
     }
 
-    // সব ধরণের লিন্ট এবং কোড ফরম্যাট এরর বাইপাস করবে
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
@@ -37,47 +31,25 @@ android {
     }
 }
 
-repositories {
-    flatDir{
-        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
-    }
-}
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    
-    // ভ্যারিয়েবলের বদলে সরাসরি ভার্সন বসানো হয়েছে যাতে এরর না আসে
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
     implementation "androidx.core:core-splashscreen:1.0.1"
-    
     implementation project(':capacitor-android')
     
-    // প্লাগইন ফোল্ডার না থাকলেও যেন বিল্ড না থামে তার সুরক্ষা
+    // প্লাগইন এরর বাইপাস
     try {
         implementation project(':capacitor-cordova-android-plugins')
     } catch (Exception e) {
-        println "Cordova plugins project not found, skipping..."
+        println "Plugins not found, skipping..."
     }
-
-    testImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test.ext:junit:1.1.5"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 }
 
-// ক্যাপাসিটর বিল্ড সেটিংস লোড করা
-try {
-    if (file('capacitor.build.gradle').exists()) {
-        apply from: 'capacitor.build.gradle'
-    }
-} catch (Exception e) { }
+apply from: 'capacitor.build.gradle'
 
-// গুগল সার্ভিস বাইপাস সুরক্ষা
 try {
-    def servicesJSON = file('google-services.json')
-    if (servicesJSON.exists()) {
+    if (file('google-services.json').exists()) {
         apply plugin: 'com.google.gms.google-services'
     }
-} catch(Exception e) {
-    println "google-services.json not found, skipping plugin."
-}
+} catch(Exception e) { }
