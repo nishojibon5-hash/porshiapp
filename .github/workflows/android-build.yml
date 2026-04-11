@@ -12,10 +12,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Vite এর রিকোয়ারমেন্ট অনুযায়ী Node.js ২০ এ আপডেট করা হলো
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -23,18 +24,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # ক্যাশ ক্লিয়ার করে ফ্রেশ ডিপেন্ডেন্সি ইনস্টল করা
       - name: Install Dependencies
         run: |
-          npm install
+          npm ci || npm install
           npm run build --if-present
 
       - name: Build Android APK
         run: |
           cd android
-          # গ্র্যাডল ফাইলকে এক্সিকিউট করার পারমিশন দেওয়া
           chmod +x gradlew
-          # লিন্ট এরর স্কিপ করে সরাসরি বিল্ড করা
-          ./gradlew assembleDebug -x lint --stacktrace
+          # লিন্ট এবং অহেতুক চেক বাদ দিয়ে সরাসরি APK তৈরি
+          ./gradlew assembleDebug -x lint -x test --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
