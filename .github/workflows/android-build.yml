@@ -12,11 +12,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Vite এবং আধুনিক প্লাগইনগুলোর জন্য Node.js ২০ সেট করা হলো
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20' # Vite এর এরর কাটাতে এটি ২০ করা হয়েছে
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -24,7 +23,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ক্যাশ এবং ভার্সন সমস্যা দূর করতে legacy-peer-deps ব্যবহার করা হয়েছে
       - name: Install Dependencies
         run: |
           npm install --legacy-peer-deps
@@ -34,11 +32,10 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          # -x lint এবং -x test দিয়ে সব ধরণের বাধা বাইপাস করা হয়েছে
           ./gradlew assembleDebug -x lint -x test --stacktrace
 
-      - name: Upload Debug APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: porshi-app-debug
+          name: porshi-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
