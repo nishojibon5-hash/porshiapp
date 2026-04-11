@@ -29,7 +29,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          # ক্যাশ এরর এড়ানোর জন্য সাময়িকভাবে ক্যাশ বন্ধ করা হয়েছে
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -44,9 +43,17 @@ jobs:
 
       - name: Build Android APK (Debug)
         run: |
-          # যদি আপনার অ্যান্ড্রয়েড ফাইলগুলো সরাসরি রুট ফোল্ডারে থাকে, তবে 'cd android' দরকার নেই।
-          # বর্তমানে আপনার প্রজেক্ট স্ট্রাকচার অনুযায়ী এটি রান করা হচ্ছে।
-          if [ -d "android" ]; then cd android; fi
+          # Gradlew ফাইলটি কোথায় আছে তা খোঁজা হচ্ছে
+          if [ -f "gradlew" ]; then
+            GRADLE_DIR="."
+          elif [ -f "android/gradlew" ]; then
+            GRADLE_DIR="android"
+          else
+            echo "❌ gradlew file not found! Please ensure your Android project is set up correctly."
+            exit 1
+          fi
+          
+          cd $GRADLE_DIR
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace
 
@@ -60,7 +67,12 @@ jobs:
 
       - name: Build Android APK (Release)
         run: |
-          if [ -d "android" ]; then cd android; fi
+          if [ -f "gradlew" ]; then
+            GRADLE_DIR="."
+          elif [ -f "android/gradlew" ]; then
+            GRADLE_DIR="android"
+          fi
+          cd $GRADLE_DIR
           ./gradlew assembleRelease --stacktrace
         continue-on-error: true
 
