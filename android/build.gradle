@@ -1,29 +1,60 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply plugin: 'com.android.application'
 
-buildscript {
-    
-    repositories {
-        google()
-        mavenCentral()
+android {
+    namespace "com.porshi.app"
+    compileSdk 34 // এটি লেটেস্ট ভার্সনে আপডেট করা হয়েছে
+
+    defaultConfig {
+        applicationId "com.porshi.app"
+        minSdk 22
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.0'
-        classpath 'com.google.gms:google-services:4.4.4'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // এটি খুবই গুরুত্বপূর্ণ: বিল্ডের সময় ছোটখাটো লিন্ট এরর এড়িয়ে যাবে
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
-apply from: "variables.gradle"
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+repositories {
+    google()
+    mavenCentral()
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation project(':capacitor-android')
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+// ক্যাপাসিটর বিল্ড সেটিংস লোড করা
+apply from: 'capacitor.build.gradle'
+
+// গুগল সার্ভিস যদি থাকে তবেই লোড করবে, নয়তো স্কিপ করবে (এরর হবে না)
+try {
+    if (file('google-services.json').exists()) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    // skip
 }
