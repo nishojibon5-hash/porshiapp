@@ -5,7 +5,7 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
-  workflow_dispatch:  # ম্যানুয়ালি রান করার অপশন
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -25,14 +25,14 @@ jobs:
           cache: 'npm'
 
       - name: Setup Java
-        uses: actions/setup-java@v4 # v3 থেকে v4 এ আপডেট করা হয়েছে
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
+          # ক্যাশ এরর এড়ানোর জন্য সাময়িকভাবে ক্যাশ বন্ধ করা হয়েছে
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3 # লেটেস্ট ভার্সন
+        uses: android-actions/setup-android@v3
         with:
           api-level: 33
           build-tools-version: 33.0.0
@@ -44,55 +44,47 @@ jobs:
 
       - name: Build Android APK (Debug)
         run: |
-          cd android
+          # যদি আপনার অ্যান্ড্রয়েড ফাইলগুলো সরাসরি রুট ফোল্ডারে থাকে, তবে 'cd android' দরকার নেই।
+          # বর্তমানে আপনার প্রজেক্ট স্ট্রাকচার অনুযায়ী এটি রান করা হচ্ছে।
+          if [ -d "android" ]; then cd android; fi
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace
 
       - name: Upload Debug APK
-        uses: actions/upload-artifact@v4 # v3 থেকে v4 এ আপডেট (মাস্টার ফিক্স)
+        uses: actions/upload-artifact@v4
         with:
           name: porshi-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/apk/debug/app-debug.apk
 
       - name: Build Android APK (Release)
         run: |
-          cd android
+          if [ -d "android" ]; then cd android; fi
           ./gradlew assembleRelease --stacktrace
         continue-on-error: true
 
-      - name: Upload Release APK (if successful)
-        uses: actions/upload-artifact@v4 # v3 থেকে v4 এ আপডেট
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
         if: success()
         with:
           name: porshi-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2 # আপডেট করা হয়েছে
-        with:
-          files: |
-            android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
             android/app/build/outputs/apk/release/app-release.apk
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            app/build/outputs/apk/release/app-release.apk
 
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-
       - name: Install Dependencies
         run: npm install
-
       - name: Run Tests
         run: npm test
         continue-on-error: true
@@ -103,7 +95,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Deploy Backend to Vercel
         run: |
           npm install -g vercel
