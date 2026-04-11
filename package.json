@@ -10,7 +10,11 @@
     "start": "node dist/server/node-build.mjs",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "deploy:vercel": "vercel deploy --prod",
+    "setup:github": "bash scripts/setup-github.sh",
+    "setup:vercel": "bash scripts/setup-vercel.sh",
+    "setup:all": "npm run setup:vercel && npm run setup:github"
   },
   "dependencies": {
     "dotenv": "^17.2.1",

@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "buildCommand": "npm install",
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "APP_URL": "@app_url",
+    "ENCRYPTION_KEY": "@encryption_key",
+    "FCM_SERVER_KEY": "@fcm_server_key"
+  },
+  "functions": {
+    "api/**/*.js": {
+      "memory": 512,
+      "maxDuration": 60,
+      "includeFiles": "api/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
+      ]
+    }
+  ],
+  "regions": ["iad1", "sfo1"],
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "develop": true
+    }
+  }
+}
