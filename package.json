@@ -18,7 +18,8 @@
     "android:verify": "bash scripts/verify-android-build.sh",
     "android:build": "bash scripts/build-android.sh debug",
     "android:build:release": "bash scripts/build-android.sh release",
-    "android:build:clean": "bash scripts/build-android.sh debug --clean"
+    "android:build:clean": "bash scripts/build-android.sh debug --clean",
+    "android:build:aggressive": "bash scripts/build-android-aggressive.sh"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",

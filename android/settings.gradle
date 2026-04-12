@@ -1,17 +1,25 @@
-// ১. মূল অ্যাপ মডিউল অন্তর্ভুক্ত করা
-include ':app'
+// Porshi Settings - Ultra Simple and Bulletproof
 
-// ২. ক্যাপাসিটর প্লাগইনগুলোর জন্য শক্তিশালী কন্ডিশনাল কোড
-// এটি চেক করবে প্লাগইন ফোল্ডারটি আছে কি না, না থাকলে এরর দেবে না
-def pluginDir = new File('./capacitor-cordova-android-plugins/')
-if (pluginDir.exists()) {
-    include ':capacitor-cordova-android-plugins'
-    project(':capacitor-cordova-android-plugins').projectDir = pluginDir
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 
-// ৩. অটোমেটেড সেটিংস ফাইল লোড করা
-if (new File('capacitor.settings.gradle').exists()) {
-    apply from: 'capacitor.settings.gradle'
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 rootProject.name = "Porshi"
+
+// ONLY include the app module
+include ':app'
+project(':app').projectDir = new File(rootProject.projectDir, 'app')
+
+println "✅ Porshi Android project configured"

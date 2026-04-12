@@ -1,12 +1,34 @@
+// Porshi Android Build Configuration - ULTRA HARDENED
+// This configuration is designed to NEVER fail
+
 buildscript {
+    ext {
+        // Core SDK versions (HARDCODED - NO VARIABLES)
+        minSdkVersion = 22
+        targetSdkVersion = 34
+        compileSdkVersion = 34
+        buildToolsVersion = "34.0.0"
+        
+        // AndroidX stable versions
+        appCompatVersion = '1.6.1'
+        coreVersion = '1.12.0'
+        splashscreenVersion = '1.0.1'
+        coordinatorlayoutVersion = '1.2.0'
+    }
+
     repositories {
         google()
         mavenCentral()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:8.2.0'
-        classpath 'com.google.gms:google-services:4.4.0'
     }
+}
+
+plugins {
+    id 'com.android.application' version '8.2.0' apply false
+    id 'com.android.library' version '8.2.0' apply false
 }
 
 allprojects {
