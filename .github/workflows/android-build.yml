@@ -12,10 +12,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      # Capacitor CLI-এর চাহিদা অনুযায়ী Node.js 22 সেট করা হলো
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
@@ -23,13 +24,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ক্যাশ ক্লিয়ার করে ফ্রেশ ইনস্টল
       - name: Install Dependencies
         run: |
           npm install --legacy-peer-deps
           npm run build --if-present
 
-      # ওয়েব কোডকে অ্যান্ড্রয়েড ফোল্ডারের সাথে সিঙ্ক করা (এটি সবচেয়ে জরুরি)
+      # এই ধাপে যেন আর এরর না আসে সেজন্য Capacitor সিঙ্ক
       - name: Capacitor Sync
         run: |
           npx cap sync android
@@ -38,10 +38,8 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          # || true বাদ দেওয়া হয়েছে যাতে এরর হলে আপনি সরাসরি দেখতে পান
           ./gradlew assembleDebug -x lint -x test --stacktrace
 
-      # সঠিক পাথ থেকে APK আপলোড করা
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
