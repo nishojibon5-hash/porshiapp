@@ -1,85 +1,17 @@
-// Porshi Android Settings
-// Hardened configuration with error handling for missing plugins
+// ১. মূল অ্যাপ মডিউল অন্তর্ভুক্ত করা
+include ':app'
 
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
+// ২. ক্যাপাসিটর প্লাগইনগুলোর জন্য শক্তিশালী কন্ডিশনাল কোড
+// এটি চেক করবে প্লাগইন ফোল্ডারটি আছে কি না, না থাকলে এরর দেবে না
+def pluginDir = new File('./capacitor-cordova-android-plugins/')
+if (pluginDir.exists()) {
+    include ':capacitor-cordova-android-plugins'
+    project(':capacitor-cordova-android-plugins').projectDir = pluginDir
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
+// ৩. অটোমেটেড সেটিংস ফাইল লোড করা
+if (new File('capacitor.settings.gradle').exists()) {
+    apply from: 'capacitor.settings.gradle'
 }
 
 rootProject.name = "Porshi"
-
-// Include app module
-include ':app'
-project(':app').projectDir = new File(rootProject.projectDir, 'app')
-
-// Safely include Capacitor plugins directory if it exists
-def capacitorPluginsDir = new File(rootProject.projectDir, 'capacitor-plugins')
-if (capacitorPluginsDir.exists()) {
-    println "✅ Found capacitor-plugins directory"
-    
-    capacitorPluginsDir.eachDir { pluginDir ->
-        if (new File(pluginDir, 'build.gradle').exists()) {
-            def projectName = pluginDir.name
-            try {
-                include ":${projectName}"
-                project(":${projectName}").projectDir = pluginDir
-                println "✅ Included plugin: ${projectName}"
-            } catch (Exception e) {
-                println "⚠️  Failed to include plugin ${projectName}: ${e.message}"
-            }
-        }
-    }
-} else {
-    println "ℹ️  capacitor-plugins directory not found (optional)"
-}
-
-// Safely include Cordova plugins directory if it exists
-def cordovaPluginsDir = new File(rootProject.projectDir, 'cordova-plugins')
-if (cordovaPluginsDir.exists()) {
-    println "✅ Found cordova-plugins directory"
-    
-    cordovaPluginsDir.eachDir { pluginDir ->
-        if (new File(pluginDir, 'build.gradle').exists()) {
-            def projectName = pluginDir.name
-            try {
-                include ":${projectName}"
-                project(":${projectName}").projectDir = pluginDir
-                println "✅ Included Cordova plugin: ${projectName}"
-            } catch (Exception e) {
-                println "⚠️  Failed to include Cordova plugin ${projectName}: ${e.message}"
-            }
-        }
-    }
-} else {
-    println "ℹ️  cordova-plugins directory not found (optional)"
-}
-
-// Hardened gradle properties
-gradle.projectsEvaluated {
-    rootProject.allprojects {
-        // Ensure all projects have proper configuration
-        tasks.withType(JavaCompile) {
-            options.encoding = 'UTF-8'
-        }
-    }
-}
-
-// Debugging output
-println "=================================================="
-println "📱 Porshi Android Project Settings"
-println "=================================================="
-println "Root Project: ${rootProject.name}"
-println "Project Dir: ${rootProject.projectDir}"
-println "Gradle Version: ${gradle.gradleVersion}"
-println "=================================================="

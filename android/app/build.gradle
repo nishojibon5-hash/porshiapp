@@ -1,19 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-
-// Safely apply Google Play Services plugin if available
-try {
-    apply plugin: 'com.google.gms.google-services'
-} catch (Exception e) {
-    println "⚠️  Google Play Services plugin not available: ${e.message}"
-}
-
-// Safely apply Capacitor Cordova plugins if available
-try {
-    apply from: 'capacitor.build.gradle'
-} catch (Exception e) {
-    println "⚠️  Capacitor build configuration not found: ${e.message}"
-}
 
 android {
     namespace "com.porshi.app"
@@ -21,168 +6,50 @@ android {
 
     defaultConfig {
         applicationId "com.porshi.app"
-        minSdk 24
+        minSdk 22
         targetSdk 34
         versionCode 1
-        versionName "1.0.0"
-        
+        versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        
-        // Explicitly set manifest placeholders to avoid build errors
-        manifestPlaceholders = [
-            projectId: 'porshi-app',
-            appName: 'Porshi'
-        ]
-    }
-
-    signingConfigs {
-        debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-        }
-        release {
-            // Configure release signing in local.properties or through GitHub secrets
-            // For CI/CD, this will be set via environment variables
-        }
     }
 
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-            applicationIdSuffix ".debug"
-            debuggable true
-            minifyEnabled false
-        }
         release {
-            signingConfig signingConfigs.debug // Use debug for testing, configure properly for production
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
-    packagingOptions {
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
-            excludes += '/META-INF/proguard/androidx-*.pro'
-        }
-    }
-
-    // Hardened lint options to prevent build failures
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
-        disable 'MissingDimensionActivityConfigurationCheck'
-        disable 'MissingPermission'
-        disable 'ExtraTranslation'
     }
 
-    buildFeatures {
-        aidl false
-        renderScript false
-        resValues false
-        shaders false
-        dataBinding false
-        viewBinding false
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    // Core AndroidX libraries (hardcoded versions)
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.12.0'
-    implementation 'com.google.android.material:material:1.10.0'
-    implementation 'androidx.browser:browser:1.7.0'
-    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
-
-    // Kotlin
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
-
-    // Capacitor (hardcoded version)
-    implementation 'com.getcapacitor:core:5.5.1'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation project(':capacitor-android')
     
-    // Safely handle Capacitor Cordova Android dependency
+    // প্লাগইন এরর বাইপাস
     try {
-        implementation 'com.getcapacitor:cordova-android:5.1.1'
-    } catch (Exception e) {
-        println "⚠️  Capacitor Cordova Android not available: ${e.message}"
-    }
-
-    // Cordova
-    implementation 'org.apache.cordova:cordova-android:10.1.1'
-
-    // Google Play Services (hardcoded version)
-    implementation 'com.google.android.gms:play-services-base:23.0.0'
-    
-    // Optional Firebase dependencies (if using Google Services)
-    try {
-        implementation 'com.google.firebase:firebase-analytics:21.5.0'
-    } catch (Exception e) {
-        println "⚠️  Firebase not available: ${e.message}"
-    }
-
-    // Testing dependencies
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-
-    // Networking (Retrofit)
-    implementation 'com.squareup.retrofit2:retrofit:2.10.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.10.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
-
-    // JSON parsing (Gson)
-    implementation 'com.google.code.gson:gson:2.10.1'
-
-    // Jetpack Compose (if using modern UI)
-    implementation 'androidx.activity:activity-compose:1.8.0'
-    implementation 'androidx.compose.material3:material3:1.1.2'
-
-    // View Models and LiveData
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-runtime:2.6.2'
-}
-
-// Safely handle project dependency
-try {
-    dependencies {
         implementation project(':capacitor-cordova-android-plugins')
-    }
-} catch (Exception e) {
-    println "⚠️  Capacitor Cordova Android plugins not found: ${e.message}"
-}
-
-// Hardened task configuration
-gradle.taskGraph.whenReady { taskGraph ->
-    taskGraph.allTasks.each { task ->
-        if (task.name.contains('lint')) {
-            task.enabled = false
-        }
+    } catch (Exception e) {
+        println "Plugins not found, skipping..."
     }
 }
 
-// Debug info for troubleshooting
-println "=================================================="
-println "📱 Porshi Android Build Configuration"
-println "=================================================="
-println "Namespace: com.porshi.app"
-println "Compile SDK: 34"
-println "Target SDK: 34"
-println "Min SDK: 24"
-println "Java Version: 11"
-println "Kotlin Version: 1.9.10"
-println "Gradle Version: 8.2.0"
-println "Android Gradle Plugin: 8.2.0"
-println "=================================================="
+apply from: 'capacitor.build.gradle'
+
+try {
+    if (file('google-services.json').exists()) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) { }
