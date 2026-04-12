@@ -12,11 +12,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Capacitor CLI-এর চাহিদা অনুযায়ী Node.js 22 সেট করা হলো
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22' # Capacitor এর নতুন চাহিদামত ২২ সেট করা হলো
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
@@ -29,7 +28,6 @@ jobs:
           npm install --legacy-peer-deps
           npm run build --if-present
 
-      # এই ধাপে যেন আর এরর না আসে সেজন্য Capacitor সিঙ্ক
       - name: Capacitor Sync
         run: |
           npx cap sync android
@@ -38,11 +36,11 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug -x lint -x test --stacktrace
+          ./gradlew assembleDebug -x lint -x test
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: porshi-apk-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
+          if-no-files-found: error # ফাইল না থাকলে এবার এরর দিবে, আপনাকে আর ধোঁকায় ফেলবে না
