@@ -14,7 +14,11 @@
     "deploy:vercel": "vercel deploy --prod",
     "setup:github": "bash scripts/setup-github.sh",
     "setup:vercel": "bash scripts/setup-vercel.sh",
-    "setup:all": "npm run setup:vercel && npm run setup:github"
+    "setup:all": "npm run setup:vercel && npm run setup:github",
+    "android:verify": "bash scripts/verify-android-build.sh",
+    "android:build": "bash scripts/build-android.sh debug",
+    "android:build:release": "bash scripts/build-android.sh release",
+    "android:build:clean": "bash scripts/build-android.sh debug --clean"
   },
   "dependencies": {
     "dotenv": "^17.2.1",

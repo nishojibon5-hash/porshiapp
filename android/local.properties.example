@@ -1,0 +1,30 @@
+# Android SDK and NDK configuration
+# Copy this file to local.properties and update with your paths
+
+# Android SDK location
+sdk.dir=/path/to/android/sdk
+
+# Android NDK location (optional, for native development)
+ndk.dir=/path/to/android/ndk
+
+# NDK version
+ndk.version=25.0.8775105
+
+# Build configuration
+org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m
+
+# Enable parallel builds
+org.gradle.parallel=true
+
+# Enable build cache
+org.gradle.caching=true
+
+# Kotlin compiler options
+kotlin.code.style=official
+
+# Android build options
+android.useAndroidX=true
+android.enableJetifier=true
+
+# Suppress warnings during build
+android.suppressUnsupportedCompileSdk=31
