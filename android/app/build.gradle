@@ -1,140 +1,49 @@
-// Porshi App Build Configuration - ULTRA HARDENED
-// Designed to work even with missing files and dependencies
-
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 
 android {
     namespace "com.porshi.app"
     compileSdk 34
-    buildToolsVersion "34.0.0"
 
     defaultConfig {
         applicationId "com.porshi.app"
         minSdk 22
         targetSdk 34
         versionCode 1
-        versionName "1.0.0"
-        
+        versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-        }
-    }
-
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-            debuggable true
-            minifyEnabled false
-            shrinkResources false
-            
-            // Non-blocking optimizations
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        
         release {
-            signingConfig signingConfigs.debug  // Use debug for all builds
             minifyEnabled false
-            shrinkResources false
-            
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = '11'
-    }
-
-    // Aggressive lint settings - NEVER fail on lint
     lintOptions {
-        abortOnError false
         checkReleaseBuilds false
-        disable 'MissingDimensionActivityConfigurationCheck'
-        disable 'MissingPermission'
-        disable 'ExtraTranslation'
-        disable 'MissingTranslation'
+        abortOnError false
     }
 
-    // Disable unnecessary build features for faster builds
-    buildFeatures {
-        aidl false
-        renderScript false
-        resValues false
-        shaders false
-        dataBinding false
-        viewBinding false
-    }
-
-    // Packaging options
-    packagingOptions {
-        resources {
-            excludes += '/META-INF/LICENSE'
-            excludes += '/META-INF/NOTICE'
-            excludes += '/META-INF/proguard/androidx-*.pro'
-        }
-    }
-
-    // Disable R8 optimization if causes issues
-    configurations {
-        all {
-            resolutionStrategy {
-                // Force specific versions if needed
-                force 'androidx.appcompat:appcompat:1.6.1'
-                force 'androidx.core:core:1.12.0'
-            }
-        }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    // CORE - These WILL be available
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.12.0'
-    implementation 'androidx.core:core-splashscreen:1.0.1'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    // সরাসরি ভার্সন বসানো হয়েছে যাতে এরর না আসে
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation project(':capacitor-android')
     
-    // Kotlin
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
-    
-    // Testing (may not be used but won't hurt)
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-}
-
-// Gradle tasks configuration - aggressive skipping
-gradle.taskGraph.whenReady { taskGraph ->
-    // Skip problematic tasks
-    taskGraph.allTasks.each { task ->
-        if (task.name.contains('lint')) {
-            task.enabled = false
-        }
-        if (task.name.contains('test')) {
-            task.enabled = false
-        }
+    try {
+        implementation project(':capacitor-cordova-android-plugins')
+    } catch (Exception e) {
+        println "Plugins not found"
     }
 }
 
-// Print build info for debugging
-println "================================================"
-println "📱 PORSHI ANDROID BUILD (ULTRA HARDENED)"
-println "================================================"
-println "App ID: com.porshi.app"
-println "Min SDK: 22"
-println "Compile SDK: 34"
-println "Target SDK: 34"
-println "Java Version: 11"
-println "Status: 🚀 READY TO BUILD"
-println "================================================"
+apply from: 'capacitor.build.gradle'
