@@ -1,25 +1,2 @@
-// Porshi Settings - Ultra Simple and Bulletproof
-
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
 rootProject.name = "Porshi"
-
-// ONLY include the app module
 include ':app'
-project(':app').projectDir = new File(rootProject.projectDir, 'app')
-
-println "✅ Porshi Android project configured"

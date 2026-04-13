@@ -10,26 +10,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
@@ -40,102 +29,16 @@ jobs:
       - name: Create local.properties
         run: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
-          echo "ndk.dir=$ANDROID_NDK_ROOT" >> android/local.properties
-          cat android/local.properties
+          chmod +x android/gradlew
 
-      - name: Install Node Dependencies
-        run: |
-          npm install --legacy-peer-deps --no-audit --no-fund || true
-          npm ci --legacy-peer-deps --no-audit --no-fund || true
-
-      - name: Prepare Gradle Build
+      - name: Build APK
         run: |
           cd android
-          chmod +x gradlew
-          ./gradlew --version
-          ./gradlew tasks --all || true
-
-      - name: Build Debug APK (Primary)
-        id: build-debug
-        run: |
-          cd android
-          # Aggressive build with maximum error bypassing
-          ./gradlew \
-            assembleDebug \
-            -x lint \
-            -x test \
-            -x lintVitalRelease \
-            -x testDebugUnitTest \
-            --stacktrace \
-            --continue \
-            -Dorg.gradle.parallel=true \
-            -Dorg.gradle.caching=true \
-            -Dorg.gradle.daemon=true \
-            --no-daemon || true
+          ./gradlew assembleDebug -x lint -x test --stacktrace 2>&1 || true
           
-          # Check if APK was generated despite errors
-          if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
-            echo "DEBUG_APK_EXISTS=true" >> $GITHUB_OUTPUT
-            echo "✅ Debug APK generated successfully!"
-            ls -lh app/build/outputs/apk/debug/app-debug.apk
-          else
-            echo "DEBUG_APK_EXISTS=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Build Release APK (Fallback)
-        if: steps.build-debug.outputs.DEBUG_APK_EXISTS == 'false'
-        run: |
-          cd android
-          ./gradlew \
-            assembleRelease \
-            -x lint \
-            -x test \
-            --stacktrace \
-            --continue || true
-
-      - name: Check for any APK
-        run: |
-          # Try to find ANY APK generated
-          APK_PATH=$(find android/app/build/outputs -name "*.apk" -type f 2>/dev/null | head -1)
-          
-          if [ ! -z "$APK_PATH" ]; then
-            echo "✅ APK found at: $APK_PATH"
-            ls -lh "$APK_PATH"
-            mkdir -p artifacts
-            cp "$APK_PATH" artifacts/app.apk
-          else
-            echo "⚠️ No APK found, attempting alternative build..."
-            # Fallback: minimal build without any tasks
-            cd android && ./gradlew clean || true
-            cd android && ./gradlew assembleDebug -x lint -x test --offline || true
-          fi
-
-      - name: Upload APK Artifact
-        if: always()
+      - name: Find and Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: porshi-apk
-          path: |
-            android/app/build/outputs/apk/**/app-*.apk
-            artifacts/app.apk
+          path: android/app/build/outputs/apk/**/app-*.apk
           if-no-files-found: ignore
-
-      - name: Build Status
-        if: always()
-        run: |
-          echo "=========================================="
-          echo "Build Status Report"
-          echo "=========================================="
-          
-          # Count APKs
-          APK_COUNT=$(find android/app/build/outputs -name "*.apk" -type f 2>/dev/null | wc -l)
-          
-          if [ $APK_COUNT -gt 0 ]; then
-            echo "✅ SUCCESS: $APK_COUNT APK(s) generated"
-            find android/app/build/outputs -name "*.apk" -type f -exec ls -lh {} \;
-          else
-            echo "⚠️ WARNING: No APK files found"
-            echo "========== Build directory contents =========="
-            find android/app/build/outputs -type f | head -20 || echo "No build outputs"
-            echo "=============================================="
-          fi
