@@ -9,29 +9,41 @@ android {
         minSdk 22
         targetSdk 34
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        debug {
-            debuggable true
-        }
         release {
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.12.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    // সরাসরি ভার্সন বসানো হয়েছে যাতে এরর না আসে
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+    implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation project(':capacitor-android')
+    
+    try {
+        implementation project(':capacitor-cordova-android-plugins')
+    } catch (Exception e) {
+        println "Plugins not found"
+    }
 }
+
+apply from: 'capacitor.build.gradle'
