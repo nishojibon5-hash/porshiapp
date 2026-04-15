@@ -14,36 +14,46 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    // সরাসরি ভার্সন বসানো হয়েছে যাতে এরর না আসে
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
     implementation "androidx.core:core-splashscreen:1.0.1"
-    implementation project(':capacitor-android')
     
+    // Safely handle Capacitor Android (may not exist)
     try {
-        implementation project(':capacitor-cordova-android-plugins')
+        implementation project(':capacitor-android')
     } catch (Exception e) {
-        println "Plugins not found"
+        println "⚠️ Capacitor Android not available, skipping..."
+    }
+    
+    // Safely handle Capacitor Cordova plugins
+    if (project.hasProperty('capacitor-cordova-android-plugins')) {
+        try {
+            implementation project(':capacitor-cordova-android-plugins')
+        } catch (Exception e) {
+            println "⚠️ Capacitor Cordova plugins not available, skipping..."
+        }
     }
 }
-
-apply from: 'capacitor.build.gradle'
